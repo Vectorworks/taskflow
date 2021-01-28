@@ -1,2 +1,2 @@
 class Defaults(object):
-    max_retries = 2
+    max_runs = 3

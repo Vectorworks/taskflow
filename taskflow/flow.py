@@ -1,7 +1,7 @@
 from copy import deepcopy
 from uuid import uuid4
 
-from taskflow.tasks import BaseTask
+from .tasks import BaseTask
 from .type_helpers import type_from_string
 
 

@@ -10,8 +10,8 @@ class BaseTask(object):
 
     is_standalone = True
 
-    def __init__(self, max_retries=None):
-        self.max_retries = max_retries if max_retries is not None else Defaults.max_retries
+    def __init__(self, max_runs=None):
+        self.max_runs = max_runs if max_runs is not None else Defaults.max_runs
         self._runs = 0
         self._status = self.STATUS_PENDING
         self._result = None
@@ -116,7 +116,7 @@ class BaseTask(object):
     def from_dict(cls, task_data):
         result = cls()
 
-        result.max_retries = task_data['max_retries']
+        result.max_runs = task_data['max_runs']
         result._runs = task_data['runs']
         result._status = task_data['status']
         result._result = task_data['result']
@@ -130,7 +130,7 @@ class BaseTask(object):
     def _get_single_task_dict(self):
         return {
             'class': type_to_string(type(self)),
-            'max_retries': self.max_retries,
+            'max_runs': self.max_runs,
             'id': self._id,
             'runs': self._runs,
             'status': self.status,
@@ -151,8 +151,8 @@ class BaseTask(object):
 
 
 class Task(BaseTask):
-    def __init__(self, func=None, args=None, max_retries=None):
-        super().__init__(max_retries=max_retries)
+    def __init__(self, func=None, args=None, max_runs=None):
+        super().__init__(max_runs=max_runs)
         self._func = func
         self._args = args or []
 
@@ -168,10 +168,10 @@ class Task(BaseTask):
             self._status = self.STATUS_COMPLETE
             return self._result
         except Exception:
-            self._status = self.STATUS_HALTED if self._runs > self.max_retries else self.STATUS_PENDING
+            self._status = self.STATUS_HALTED if self._runs >= self.max_runs else self.STATUS_PENDING
 
     def __str__(self):
-        return f'{self._func}:{self.max_retries}'
+        return f'{self._func}:{self.max_runs}'
 
     def _get_single_task_dict(self):
         result = super()._get_single_task_dict()
