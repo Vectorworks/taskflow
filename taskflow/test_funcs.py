@@ -7,8 +7,8 @@ def product(*args):
 
 class Test(object):
     @classmethod
-    def mul_5_2(cls):
-        return 5 * 2
+    def const(cls, param):
+        return param
 
     @staticmethod
     def sum(*args):

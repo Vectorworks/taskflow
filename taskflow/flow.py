@@ -1,33 +1,30 @@
+from uuid import uuid4
+
 from .tasks.task import BaseTask
 
 
 class Flow(object):
-    STATUS_NOT_STARTED = 'not-started'
-    STATUS_RUNNING = 'running'
-    STATUS_HALTED = 'halted'
-    STATUS_COMPLETE = 'complete'
-
-    def __init__(self, root_task: BaseTask):
-        self.root_task = root_task
-        self.status = self.STATUS_NOT_STARTED
-
+    def __init__(self, task: BaseTask):
+        self.uid = uuid4()
+        self.root_task = task.local_root
         self.root_task.set_ids()
 
-    def run(self, *args, **kwargs):
+    def run(self, **kwargs):
         while True:
-            task = self._get_next()
+            task = self._get_next(self.root_task)
             if not task:
                 break
-            task.run(*args, **kwargs)
+            task.run(**kwargs)
 
-        return self.root_task.last_result
+        return self.root_task.leaf.result
 
     def step(self):
-        task = self._get_next()
+        task = self._get_next(self.root_task)
         if not task:
             return
 
         task.run()
+
         return task
 
     def _execute(self, task, *args, **kwargs):
@@ -39,15 +36,29 @@ class Flow(object):
 
         return result
 
-    def _get_next(self):
-        task = next(iter(self.root_task), None)
-        while task and not task.ready_to_run:
-            task = next(iter(task), None)
+    def _get_next(self, task):
+        sub_tasks = task.get_all_tasks()
+        for sub_task in sub_tasks:
+            if sub_task == task:
+                if sub_task.status == BaseTask.STATUS_PENDING:
+                    return task
+            else:
+                next_task = self._get_next(sub_task)
+                if next_task:
+                    return next_task
 
-        return task
+        if task.next:
+            return self._get_next(task.next)
+
+        return None
 
     def to_dict(self):
         return {
             'root_task': self.root_task.to_dict(),
-            'status': self.status
         }
+
+    def to_list(self):
+        return self.root_task.to_list()
+
+    def from_list(self, task_list):
+        pass

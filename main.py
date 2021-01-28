@@ -7,30 +7,32 @@ from taskflow.test_funcs import Test, product
 
 
 def run():
-    flow = Flow(CompositeTask(
-        Test.sum,
-        sub_tasks=[
-            SimpleTask(Test.mul_5_2),
-            CompositeTask(
-                product,
-                sub_tasks=[
-                    SimpleTask(lambda *args, **kwargs: 5 + 6),
-                    SimpleTask(lambda *args, **kwargs: 2 + 4)
-                ]
+    flow = Flow(
+        Task.when(
+            Task(product, args=[5, 2]),
+            Task.when(
+                Task(Test.sum, args=[5, 6]),
+                Task(Test.sum, args=[2, 4])
+            ).then(
+                Task(product)
             ),
-            SimpleTask(lambda *args, **kwargs: 4),
-        ]
-    ))
+            Task(Test.const, args=[4]),
+        ).then(
+            Task(Test.sum)
+        )
+    )
 
-    print(json.dumps(flow.to_dict(), indent=2))
+    for row in flow.to_list():
+        print(row)
 
+    print()
     while True:
         task = flow.step()
         if not task:
             break
 
-        print(f'{task._func} -> {task.last_result}')
+        print(f'{task.id} -> {task.result}')
 
 
 if __name__ == '__main__':
-    print(run())
+    run()
