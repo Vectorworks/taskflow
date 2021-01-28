@@ -9,8 +9,11 @@ class Flow(object):
     def __init__(self, task: BaseTask, friendly_name=None):
         self.uid = uuid4()
         self.friendly_name = friendly_name or ''
-        self.root_task = task.local_root
-        self.root_task.set_ids()
+        self.root_task = BaseTask.find_root(task)
+
+        # when deserializing, tasks will already have ids, that we want to preserve
+        if not self.root_task.id:
+            self.root_task.set_ids()
 
     def run(self, **kwargs):
         while True:

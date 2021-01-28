@@ -42,6 +42,10 @@ class BaseTask(object):
         return self._next
 
     @property
+    def parent(self):
+        return self._parent
+
+    @property
     def local_root(self):
         root = self
         while root.prev:
@@ -73,7 +77,9 @@ class BaseTask(object):
 
     def _override_arguments(self, *args, **kwargs):
         if self.prev:
-            return self.prev.result, kwargs
+            # composite tasks already return a list of results and we don't want to wrap these twice
+            prev_result = [self.prev.result] if self.prev.is_standalone else self.prev.result
+            return list(args) + prev_result, kwargs
 
         if self._parent:
             return self._parent._override_arguments(*args, **kwargs)
@@ -82,6 +88,12 @@ class BaseTask(object):
 
     def get_all_tasks(self):
         return [self]
+
+    @classmethod
+    def find_root(cls, task):
+        while task.prev or task.parent:
+            task = task.prev or task.parent
+        return task
 
     def then(self, task):
         if self._next:

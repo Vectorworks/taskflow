@@ -7,8 +7,8 @@ def product(*args):
 
 class Test(object):
     @classmethod
-    def const(cls, param):
-        return param
+    def const(cls, *args):
+        return args[0] if len(args) == 1 else args
 
     @staticmethod
     def sum(*args):
