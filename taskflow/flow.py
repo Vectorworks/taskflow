@@ -41,6 +41,10 @@ class Flow(object):
 
     def _get_next(self, task):
         sub_tasks = task.get_all_tasks()
+        if any(t.status == BaseTask.STATUS_HALTED for t in sub_tasks):
+            # if we encounter a halted task, we want to halt the whole flow
+            return None
+
         for sub_task in sub_tasks:
             if sub_task == task:
                 if sub_task.status == BaseTask.STATUS_PENDING:
