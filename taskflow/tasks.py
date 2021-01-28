@@ -1,15 +1,17 @@
-import inspect
+from taskflow.defaults import Defaults
+from taskflow.type_helpers import function_name, function_module_name, type_to_string, function_from_string
 
 
 class BaseTask(object):
     STATUS_PENDING = 'pending'
+    STATUS_RUNNING = 'running'
     STATUS_HALTED = 'halted'
     STATUS_COMPLETE = 'complete'
 
     is_standalone = True
 
     def __init__(self, max_retries=None):
-        self.max_retries = max_retries or 0
+        self.max_retries = max_retries if max_retries is not None else Defaults.max_retries
         self._runs = 0
         self._status = self.STATUS_PENDING
         self._result = None
@@ -98,13 +100,28 @@ class BaseTask(object):
 
         return result
 
+    @classmethod
+    def from_dict(cls, task_data):
+        result = cls()
+
+        result.max_retries = task_data['max_retries']
+        result._runs = task_data['runs']
+        result._status = task_data['status']
+        result._result = task_data['result']
+        result._id = task_data['id']
+
+        if task_data['prev']:
+            task_data['prev'].then(result)
+
+        return result
+
     def _get_single_task_dict(self):
         return {
-            'class': f'{self.__class__.__module__}.{self.__class__.__name__}',
+            'class': type_to_string(type(self)),
             'max_retries': self.max_retries,
             'id': self._id,
             'runs': self._runs,
-            'status': self._status,
+            'status': self.status,
             'result': self._result,
             'is_standalone': self.is_standalone
         }
@@ -122,7 +139,7 @@ class BaseTask(object):
 
 
 class Task(BaseTask):
-    def __init__(self, func, args=None, max_retries=None):
+    def __init__(self, func=None, args=None, max_retries=None):
         super().__init__(max_retries=max_retries)
         self._func = func
         self._args = args or []
@@ -130,6 +147,7 @@ class Task(BaseTask):
     def run(self, **kwargs):
         # overriding args with the prev result
         # use kwargs for persistent parameters to all Tasks
+        self._status = self.STATUS_RUNNING
         args, kwargs = self._override_arguments(*self._args, **kwargs)
 
         self._runs += 1
@@ -146,19 +164,18 @@ class Task(BaseTask):
     def _get_single_task_dict(self):
         result = super()._get_single_task_dict()
         result.update({
-            'func': f'{self._get_func_module_name()}.{self._get_func_name()}',
+            'func': f'{function_module_name(self._func)}.{function_name(self._func)}',
             'args': self._args
         })
 
         return result
 
-    def _get_func_module_name(self):
-        func = getattr(self._func, '__func__', self._func)
-        return func.__module__
-
-    def _get_func_name(self):
-        func = getattr(self._func, '__func__', self._func)
-        return func.__qualname__
+    @classmethod
+    def from_dict(cls, task_data):
+        result = super().from_dict(task_data)
+        result._func = function_from_string(task_data['func'])
+        result._args = task_data['args']
+        return result
 
     @classmethod
     def when(cls, *tasks):
@@ -174,11 +191,14 @@ class CompositeTask(BaseTask):
         for sub_task in self._sub_tasks:
             sub_task._parent = self
 
+        # not a standalone task, so only the calculated property makes sense
+        self._status = None
+
     @property
     def status(self):
         if any(sub_task.status == self.STATUS_HALTED for sub_task in self._sub_tasks):
             return self.STATUS_HALTED
-        elif any(sub_task.status == self.STATUS_PENDING for sub_task in self._sub_tasks):
+        elif any(sub_task.status in [self.STATUS_PENDING, self.STATUS_RUNNING] for sub_task in self._sub_tasks):
             return self.STATUS_PENDING
         return self.STATUS_COMPLETE
 
@@ -220,3 +240,12 @@ class CompositeTask(BaseTask):
         })
 
         return result + base_list
+
+    @classmethod
+    def from_dict(cls, task_data):
+        result = super().from_dict(task_data)
+        result._sub_tasks = [sub_task.local_root for sub_task in task_data['sub_tasks'] or []]
+        for sub_task in result._sub_tasks:
+            sub_task._parent = result
+
+        return result

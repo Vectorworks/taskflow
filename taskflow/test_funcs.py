@@ -2,7 +2,7 @@ from functools import reduce
 
 
 def product(*args):
-    return reduce(lambda product, item: product * item, args, 1)
+    return reduce(lambda result, item: result * item, args, 1)
 
 
 class Test(object):

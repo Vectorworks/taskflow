@@ -1,7 +1,4 @@
-import inspect
-import json
-
-from taskflow.tasks.task import *
+from taskflow.tasks import *
 from taskflow.flow import Flow
 from taskflow.test_funcs import Test, product
 
@@ -22,16 +19,19 @@ def run():
         )
     )
 
-    for row in flow.to_list():
-        print(row)
-
-    print()
     while True:
+        print()
+        for row in flow.to_list():
+            print(row)
+
         task = flow.step()
         if not task:
             break
 
         print(f'{task.id} -> {task.result}')
+
+        # for testing recreate the flow from serialization
+        flow = Flow.from_list(flow.to_list())
 
 
 if __name__ == '__main__':
