@@ -10,12 +10,13 @@ class BaseTask(object):
 
     is_standalone = True
 
-    def __init__(self, max_runs=None):
+    def __init__(self, max_runs=None, name=None):
         self.max_runs = max_runs if max_runs is not None else Defaults.max_runs
         self._runs = 0
         self._status = self.STATUS_PENDING
         self._result = None
         self._id = None
+        self._name = name
 
         self._prev = None
         self._next = None
@@ -24,6 +25,10 @@ class BaseTask(object):
     @property
     def id(self):
         return self._id
+
+    @property
+    def name(self):
+        return self._name
 
     @property
     def status(self):
@@ -128,6 +133,7 @@ class BaseTask(object):
         result._status = task_data['status']
         result._result = task_data['result']
         result._id = task_data['id']
+        result._name = task_data['name']
 
         if task_data['prev']:
             task_data['prev'].then(result)
@@ -139,8 +145,9 @@ class BaseTask(object):
             'class': type_to_string(type(self)),
             'max_runs': self.max_runs,
             'id': self._id,
+            'name': self._name,
             'runs': self._runs,
-            'status': self.status,
+            'status': self._status,
             'result': self._result,
             'is_standalone': self.is_standalone
         }
@@ -156,10 +163,13 @@ class BaseTask(object):
 
         return result
 
+    def __str__(self):
+        return self._name if self._name else type_to_string(type(self))
+
 
 class Task(BaseTask):
-    def __init__(self, func=None, args=None, max_runs=None):
-        super().__init__(max_runs=max_runs)
+    def __init__(self, func=None, args=None, max_runs=None, name=None):
+        super().__init__(max_runs=max_runs, name=name)
         self._func = func
         self._args = args or []
 
@@ -178,7 +188,7 @@ class Task(BaseTask):
             self._status = self.STATUS_HALTED if self._runs >= self.max_runs else self.STATUS_PENDING
 
     def __str__(self):
-        return f'{self._func}:{self.max_runs}'
+        return self._name if self._name else f'{self._func}:{self._args}'
 
     def _get_single_task_dict(self):
         result = super()._get_single_task_dict()
@@ -204,8 +214,8 @@ class Task(BaseTask):
 class CompositeTask(BaseTask):
     is_standalone = False
 
-    def __init__(self, *sub_tasks):
-        super().__init__()
+    def __init__(self, *sub_tasks, name=None):
+        super().__init__(name=name)
         self._sub_tasks = [sub_task.local_root for sub_task in sub_tasks or []]
         for sub_task in self._sub_tasks:
             sub_task._parent = self

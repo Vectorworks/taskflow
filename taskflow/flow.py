@@ -103,7 +103,7 @@ class Flow(object):
 
                 if all(depends_on in created for depends_on in task_depends_on):
                     task_type = type_from_string(task_data['class'])
-                    task_data['sub_tasks'] = [created[task_id] for task_id in task_data.get('sub_tasks', [])]
+                    task_data['sub_tasks'] = [created[task_id] for task_id in (task_data.get('sub_tasks') or [])]
                     task_data['prev'] = created[task_data['prev']] if task_data['prev'] else None
 
                     last_created = task_type.from_dict(task_data)
@@ -112,4 +112,4 @@ class Flow(object):
                     remaining_tasks.remove(task_data)
                     break
 
-        return cls(BaseTask.find_root(last_created))
+        return cls(BaseTask.find_root(last_created), uid=uid, friendly_name=friendly_name)

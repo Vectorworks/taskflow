@@ -5,22 +5,26 @@ from taskflow.flow import Flow
 from taskflow.test_funcs import Test, product
 
 
-def run():
+def get_test_tasks():
     # 5*2 + (5+6)*(2+4) + 4
-    flow = Flow(
+    return (
         Task.when(
-            Task(product, args=[5, 2]),
+            Task(product, args=[5, 2], name='5*2'),
             Task.when(
-                Task(Test.sum, args=[5, 6]),
-                Task(Test.sum, args=[2, 4])
+                Task(Test.sum, args=[5, 6], name='5+6'),
+                Task(Test.sum, args=[2, 4], name='2+4')
             ).then(
-                Task(product)
+                Task(product, name='product')
             ),
-            Task(Test.const, args=[4]),
+            Task(Test.const, args=[4], name='4'),
         ).then(
-            Task(Test.sum)
+            Task(Test.sum, name='sum')
         )
     )
+
+
+def run():
+    flow = Flow(get_test_tasks())
 
     while True:
         print()
