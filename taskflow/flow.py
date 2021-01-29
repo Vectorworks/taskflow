@@ -6,14 +6,23 @@ from .type_helpers import type_from_string
 
 
 class Flow(object):
-    def __init__(self, task: BaseTask, friendly_name=None):
-        self.uid = uuid4()
+    def __init__(self, task: BaseTask, uid=None, friendly_name=None):
+        self.uid = uid or uuid4()
         self.friendly_name = friendly_name or ''
         self.root_task = BaseTask.find_root(task)
 
         # when deserializing, tasks will already have ids, that we want to preserve
         if not self.root_task.id:
             self.root_task.set_ids()
+
+    @property
+    def is_halted(self):
+        # if we encounter a halted task, we want to halt the whole flow
+        return self.root_task.leaf.is_halted
+
+    @property
+    def is_complete(self):
+        return self.root_task.leaf.status == BaseTask.STATUS_COMPLETE
 
     def run(self, **kwargs):
         while True:
@@ -24,14 +33,23 @@ class Flow(object):
 
         return self.root_task.leaf.result
 
-    def step(self):
-        task = self._get_next(self.root_task)
-        if not task:
-            return
+    def step(self, **kwargs):
+        while True:
+            task = self._get_next(self.root_task)
+            if not task:
+                return
 
-        task.run()
+            if self._before_task_run(task):
+                break
 
+        task.run(**kwargs)
         return task
+
+    def _before_task_run(self, _task):
+        """
+        Allow inheritors to choose not to run the particular task by returning False
+        """
+        return True
 
     def _execute(self, task, *args, **kwargs):
         result = None
@@ -43,11 +61,10 @@ class Flow(object):
         return result
 
     def _get_next(self, task):
-        sub_tasks = task.get_all_tasks()
-        if any(t.status == BaseTask.STATUS_HALTED for t in sub_tasks):
-            # if we encounter a halted task, we want to halt the whole flow
+        if self.is_halted:
             return None
 
+        sub_tasks = task.get_all_tasks()
         for sub_task in sub_tasks:
             if sub_task == task:
                 if sub_task.status == BaseTask.STATUS_PENDING:
@@ -71,7 +88,7 @@ class Flow(object):
         return self.root_task.to_list()
 
     @classmethod
-    def from_list(cls, task_list: list):
+    def from_list(cls, task_list: list, uid=None, friendly_name=None):
         # tasks come in a possibly randomly ordered list
         # we need to figure out the correct order for creating them starting with leaves
 
@@ -95,4 +112,4 @@ class Flow(object):
                     remaining_tasks.remove(task_data)
                     break
 
-        return Flow(last_created)
+        return cls(BaseTask.find_root(last_created))

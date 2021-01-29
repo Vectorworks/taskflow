@@ -13,3 +13,4 @@ class Test(object):
     @staticmethod
     def sum(*args):
         return sum(args)
+

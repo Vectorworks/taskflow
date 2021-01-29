@@ -61,6 +61,13 @@ class BaseTask(object):
 
         return leaf
 
+    @property
+    def is_halted(self):
+        if self.status == self.STATUS_HALTED:
+            return True
+
+        return self.prev.is_halted if self.prev else False
+
     def set_ids(self, starting_id=1):
         current_id = starting_id
 
@@ -213,6 +220,10 @@ class CompositeTask(BaseTask):
         elif any(sub_task.status in [self.STATUS_PENDING, self.STATUS_RUNNING] for sub_task in self._sub_tasks):
             return self.STATUS_PENDING
         return self.STATUS_COMPLETE
+
+    @property
+    def is_halted(self):
+        return any(sub_task.leaf.is_halted for sub_task in self._sub_tasks)
 
     @property
     def result(self):

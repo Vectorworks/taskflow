@@ -33,6 +33,8 @@ def run():
             break
 
         print(f'{task.id} -> {task.result}')
+        print(f'Is halted: {flow.is_halted}')
+        print(f'Is complete: {flow.is_complete}')
 
         # for testing recreate the flow from serialization
         task_list = flow.to_list()
