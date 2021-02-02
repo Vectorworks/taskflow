@@ -1,5 +1,5 @@
 from taskflow.defaults import Defaults
-from taskflow.type_helpers import type_to_string, function_from_string, function_to_string
+from taskflow.type_helpers import function_from_string, function_to_string, type_to_string
 
 
 class BaseTask(object):

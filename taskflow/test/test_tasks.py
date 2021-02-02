@@ -1,8 +1,9 @@
 import random
+
 import pytest
 
-from taskflow.tasks import BaseTask, Task, CompositeTask
 from taskflow.defaults import Defaults
+from taskflow.tasks import BaseTask, CompositeTask, Task
 
 from .fixtures import Handlers
 

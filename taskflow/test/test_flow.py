@@ -2,7 +2,7 @@ from random import shuffle
 from uuid import uuid4
 
 from taskflow.flow import Flow
-from taskflow.tasks import BaseTask, Task, CompositeTask
+from taskflow.tasks import BaseTask, CompositeTask, Task
 
 from .fixtures import Handlers
 
