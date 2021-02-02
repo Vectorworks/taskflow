@@ -1,23 +1,18 @@
 from importlib import import_module
 
 
+def type_to_string(type_object):
+    return f'{type_object.__module__}.{type_object.__name__}'
+
+
 def type_from_string(type_name):
     container = import_string(type_name)
     return container
 
 
-def type_to_string(type_object):
-    return f'{type_object.__module__}.{type_object.__name__}'
-
-
-def function_name(func):
+def function_to_string(func):
     func = getattr(func, '__func__', func)
-    return func.__qualname__
-
-
-def function_module_name(func):
-    func = getattr(func, '__func__', func)
-    return func.__module__
+    return f'{func.__module__}.{func.__qualname__}'
 
 
 def function_from_string(func_path):

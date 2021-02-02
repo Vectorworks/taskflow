@@ -2,7 +2,7 @@ import random
 
 from taskflow.tasks import *
 from taskflow.flow import Flow
-from taskflow.test_funcs import Test, product
+from test_funcs import Test, product
 
 
 def get_test_tasks():

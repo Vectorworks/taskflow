@@ -51,15 +51,6 @@ class Flow(object):
         """
         return True
 
-    def _execute(self, task, *args, **kwargs):
-        result = None
-        for sub_task in task:
-            if sub_task != task:
-                self._execute(sub_task, *args, **kwargs)
-            result = sub_task.run(*args, **kwargs)
-
-        return result
-
     def _get_next(self, task):
         if self.is_halted:
             return None
@@ -74,15 +65,10 @@ class Flow(object):
                 if next_task:
                     return next_task
 
-        if task.next:
+        if task.status == BaseTask.STATUS_COMPLETE and task.next:
             return self._get_next(task.next)
 
         return None
-
-    def to_dict(self):
-        return {
-            'root_task': self.root_task.to_dict(),
-        }
 
     def to_list(self):
         return self.root_task.to_list()
@@ -106,7 +92,7 @@ class Flow(object):
                     task_data['sub_tasks'] = [created[task_id] for task_id in (task_data.get('sub_tasks') or [])]
                     task_data['prev'] = created[task_data['prev']] if task_data['prev'] else None
 
-                    last_created = task_type.from_dict(task_data)
+                    last_created = task_type.from_data(task_data)
 
                     created[last_created.id] = last_created
                     remaining_tasks.remove(task_data)

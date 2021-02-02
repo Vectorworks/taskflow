@@ -1,5 +1,5 @@
 from taskflow.defaults import Defaults
-from taskflow.type_helpers import function_name, function_module_name, type_to_string, function_from_string
+from taskflow.type_helpers import type_to_string, function_from_string, function_to_string
 
 
 class BaseTask(object):
@@ -85,7 +85,7 @@ class BaseTask(object):
         return current_id
 
     def run(self, **kwargs):
-        raise NotImplemented
+        raise NotImplementedError
 
     def _override_arguments(self, *args, **kwargs):
         if self.prev:
@@ -116,31 +116,7 @@ class BaseTask(object):
         task._prev = self
         return task
 
-    def to_dict(self):
-        result = self._get_single_task_dict()
-        result.update({
-            'next': self._next.to_dict() if self._next else None
-        })
-
-        return result
-
-    @classmethod
-    def from_dict(cls, task_data):
-        result = cls()
-
-        result.max_runs = task_data['max_runs']
-        result._runs = task_data['runs']
-        result._status = task_data['status']
-        result._result = task_data['result']
-        result._id = task_data['id']
-        result._name = task_data['name']
-
-        if task_data['prev']:
-            task_data['prev'].then(result)
-
-        return result
-
-    def _get_single_task_dict(self):
+    def _get_task_data(self):
         return {
             'class': type_to_string(type(self)),
             'max_runs': self.max_runs,
@@ -153,13 +129,29 @@ class BaseTask(object):
         }
 
     def to_list(self):
-        result = [self._get_single_task_dict()]
+        result = [self._get_task_data()]
         result[0].update({
             'prev': self._prev.id if self._prev else None
         })
 
         if self._next:
             result.extend(self._next.to_list())
+
+        return result
+
+    @classmethod
+    def from_data(cls, task_data):
+        result = cls()
+
+        result.max_runs = task_data['max_runs']
+        result._runs = task_data['runs']
+        result._status = task_data['status']
+        result._result = task_data['result']
+        result._id = task_data['id']
+        result._name = task_data['name']
+
+        if task_data['prev']:
+            task_data['prev'].then(result)
 
         return result
 
@@ -188,20 +180,20 @@ class Task(BaseTask):
             self._status = self.STATUS_HALTED if self._runs >= self.max_runs else self.STATUS_PENDING
 
     def __str__(self):
-        return self._name if self._name else f'{self._func}:{self._args}'
+        return self._name if self._name else f'{function_to_string(self._func)}:{self._args}'
 
-    def _get_single_task_dict(self):
-        result = super()._get_single_task_dict()
+    def _get_task_data(self):
+        result = super()._get_task_data()
         result.update({
-            'func': f'{function_module_name(self._func)}.{function_name(self._func)}',
+            'func': function_to_string(self._func),
             'args': self._args
         })
 
         return result
 
     @classmethod
-    def from_dict(cls, task_data):
-        result = super().from_dict(task_data)
+    def from_data(cls, task_data):
+        result = super().from_data(task_data)
         result._func = function_from_string(task_data['func'])
         result._args = task_data['args']
         return result
@@ -233,7 +225,10 @@ class CompositeTask(BaseTask):
 
     @property
     def is_halted(self):
-        return any(sub_task.leaf.is_halted for sub_task in self._sub_tasks)
+        if any(sub_task.leaf.is_halted for sub_task in self._sub_tasks):
+            return True
+
+        return super().is_halted
 
     @property
     def result(self):
@@ -248,19 +243,10 @@ class CompositeTask(BaseTask):
         return super().set_ids(starting_id=current_id)
 
     def get_all_tasks(self):
-        # todo: clone maybe?
-        return self._sub_tasks
+        return self._sub_tasks[:]
 
     def run(self, **kwargs):
         raise RuntimeError('Composite tasks cannot be run directly')
-
-    def to_dict(self):
-        result = super().to_dict()
-        result.update({
-            'sub_tasks': [sub_task.to_dict() for sub_task in self._sub_tasks],
-        })
-
-        return result
 
     def to_list(self):
         result = []
@@ -275,8 +261,8 @@ class CompositeTask(BaseTask):
         return result + base_list
 
     @classmethod
-    def from_dict(cls, task_data):
-        result = super().from_dict(task_data)
+    def from_data(cls, task_data):
+        result = super().from_data(task_data)
         result._sub_tasks = [sub_task.local_root for sub_task in task_data['sub_tasks'] or []]
         for sub_task in result._sub_tasks:
             sub_task._parent = result
