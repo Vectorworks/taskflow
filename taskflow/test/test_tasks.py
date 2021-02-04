@@ -65,6 +65,16 @@ class TestBaseTask(object):
         task._result = 12345
         assert task.result == task._result
 
+    def test_error(self):
+        task = BaseTask()
+        task._error = 'err'
+        assert task.error == task._error
+
+    def test_runs(self):
+        task = BaseTask()
+        task._runs = 5
+        assert task.runs == task._runs
+
     def test_prev(self):
         task = BaseTask()
         task._prev = 'Illegal'
@@ -271,6 +281,7 @@ class TestTask(object):
         task.run(**{'1': 1})
 
         assert task.status == BaseTask.STATUS_COMPLETE
+        assert task.error is None
         assert task._runs == 1
         Handlers.repeat.assert_called_once_with(*(1, 2), **{'1': 1})
 
@@ -280,6 +291,7 @@ class TestTask(object):
         task.run()
 
         assert task.status == BaseTask.STATUS_PENDING
+        assert isinstance(task.error, Exception)
         assert task._runs == 1
 
     def test_run_fail_halt(self, mocker):

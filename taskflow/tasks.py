@@ -15,6 +15,7 @@ class BaseTask(object):
         self._runs = 0
         self._status = self.STATUS_PENDING
         self._result = None
+        self._error = None
         self._id = None
         self._name = name
 
@@ -35,6 +36,10 @@ class BaseTask(object):
         return self._status
 
     @property
+    def error(self):
+        return self._error
+
+    @property
     def result(self):
         return self._result
 
@@ -49,6 +54,10 @@ class BaseTask(object):
     @property
     def parent(self):
         return self._parent
+
+    @property
+    def runs(self):
+        return self._runs
 
     @property
     def local_root(self):
@@ -175,9 +184,11 @@ class Task(BaseTask):
         try:
             self._result = self._func(*args, **kwargs)
             self._status = self.STATUS_COMPLETE
+            self._error = None
             return self._result
-        except Exception:
+        except Exception as ex:
             self._status = self.STATUS_HALTED if self._runs >= self.max_runs else self.STATUS_PENDING
+            self._error = ex
 
     def __str__(self):
         return self._name if self._name else f'{function_to_string(self._func)}:{self._args}'

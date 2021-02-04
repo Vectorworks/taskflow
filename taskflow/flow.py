@@ -43,6 +43,8 @@ class Flow(object):
                 break
 
         task.run(**kwargs)
+        self._after_task_run(task)
+
         return task
 
     def _before_task_run(self, _task):
@@ -50,6 +52,12 @@ class Flow(object):
         Allow inheritors to choose not to run the particular task by returning False
         """
         return True
+
+    def _after_task_run(self, _task):
+        """
+        Allow inheritors to run code after a task has been run
+        """
+        return None
 
     def _get_next(self, task):
         if self.is_halted:
