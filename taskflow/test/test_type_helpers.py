@@ -2,7 +2,7 @@ import pytest
 
 from taskflow import type_helpers
 
-from .fixtures import Handlers, handler
+from .fixtures import Handlers, InheritedHandlers, handler
 
 
 def test_handler():
@@ -19,7 +19,16 @@ def test_type_from_string():
 
 
 def test_function_to_string():
+    assert type_helpers.function_to_string(handler) == 'taskflow.test.fixtures.handler'
+
+
+def test_function_to_string_class():
     assert type_helpers.function_to_string(Handlers.repeat) == 'taskflow.test.fixtures.Handlers.repeat'
+
+
+def test_function_to_string_inherited():
+    assert type_helpers.function_to_string(InheritedHandlers.repeat) == \
+           'taskflow.test.fixtures.InheritedHandlers.repeat'
 
 
 def test_function_from_string():

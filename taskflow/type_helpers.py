@@ -1,3 +1,5 @@
+import inspect
+
 from importlib import import_module
 
 
@@ -11,6 +13,10 @@ def type_from_string(type_name):
 
 
 def function_to_string(func):
+    cls = getattr(func, '__self__', None)
+    if inspect.isclass(cls):
+        return f'{cls.__module__}.{cls.__qualname__}.{func.__name__}'
+
     func = getattr(func, '__func__', func)
     return f'{func.__module__}.{func.__qualname__}'
 

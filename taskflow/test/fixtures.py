@@ -1,6 +1,11 @@
 class Handlers(object):
-    def repeat(*args, **kwargs):
+    @classmethod
+    def repeat(cls, *args, **kwargs):
         return args
+
+
+class InheritedHandlers(Handlers):
+    pass
 
 
 def handler(*args, **kwargs):
