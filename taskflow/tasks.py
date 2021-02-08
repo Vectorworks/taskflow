@@ -174,6 +174,14 @@ class Task(BaseTask):
         self._func = func
         self._args = args or []
 
+    @property
+    def func_name(self):
+        return function_to_string(self._func)
+
+    @property
+    def args(self):
+        return self._args
+
     def run(self, **kwargs):
         # overriding args with the prev result
         # use kwargs for persistent parameters to all Tasks

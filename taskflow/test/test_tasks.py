@@ -275,6 +275,14 @@ class TestTask(object):
         assert task._func == Handlers.repeat
         assert task._args == (1, 2)
 
+    def test_func_name(self):
+        task = Task(func=Handlers.repeat)
+        assert task.func_name == 'taskflow.test.fixtures.Handlers.repeat'
+
+    def test_args(self):
+        task = Task(func=Handlers.repeat, args=(1, 2,))
+        assert task.args == (1, 2,)
+
     def test_run(self, mocker):
         mocker.patch('taskflow.test.fixtures.Handlers.repeat')
         task = Task(func=Handlers.repeat, args=(1, 2))
