@@ -10,7 +10,7 @@ class BaseTask(object):
 
     is_standalone = True
 
-    def __init__(self, max_runs=None, name=None):
+    def __init__(self, max_runs=None, needs_prev_result=True, name=None):
         self.max_runs = max_runs if max_runs is not None else Defaults.max_runs
         self._runs = 0
         self._status = self.STATUS_PENDING
@@ -18,6 +18,7 @@ class BaseTask(object):
         self._error = None
         self._id = None
         self._name = name
+        self._needs_prev_result = needs_prev_result
 
         self._prev = None
         self._next = None
@@ -30,6 +31,10 @@ class BaseTask(object):
     @property
     def name(self):
         return self._name
+
+    @property
+    def needs_prev_result(self):
+        return self._needs_prev_result
 
     @property
     def status(self):
@@ -97,13 +102,14 @@ class BaseTask(object):
         raise NotImplementedError
 
     def _override_arguments(self, *args, **kwargs):
-        if self.prev:
-            # composite tasks already return a list of results and we don't want to wrap these twice
-            prev_result = [self.prev.result] if self.prev.is_standalone else self.prev.result
-            return list(args) + prev_result, kwargs
+        if self._needs_prev_result:
+            if self.prev:
+                # composite tasks already return a list of results and we don't want to wrap these twice
+                prev_result = [self.prev.result] if self.prev.is_standalone else self.prev.result
+                return list(args) + prev_result, kwargs
 
-        if self._parent:
-            return self._parent._override_arguments(*args, **kwargs)
+            if self._parent:
+                return self._parent._override_arguments(*args, **kwargs)
 
         return args, kwargs
 
@@ -131,6 +137,7 @@ class BaseTask(object):
             'max_runs': self.max_runs,
             'id': self._id,
             'name': self._name,
+            'needs_prev_result': self._needs_prev_result,
             'runs': self._runs,
             'status': self._status,
             'result': self._result,
@@ -158,6 +165,7 @@ class BaseTask(object):
         result._result = task_data['result']
         result._id = task_data['id']
         result._name = task_data['name']
+        result._needs_prev_result = task_data['needs_prev_result']
 
         if task_data['prev']:
             task_data['prev'].then(result)
@@ -169,8 +177,8 @@ class BaseTask(object):
 
 
 class Task(BaseTask):
-    def __init__(self, func=None, args=None, max_runs=None, name=None):
-        super().__init__(max_runs=max_runs, name=name)
+    def __init__(self, func=None, args=None, max_runs=None, needs_prev_result=True, name=None):
+        super().__init__(max_runs=max_runs, needs_prev_result=needs_prev_result, name=name)
         self._func = func
         self._args = args or []
 
@@ -218,15 +226,15 @@ class Task(BaseTask):
         return result
 
     @classmethod
-    def when(cls, *tasks):
-        return CompositeTask(*tasks)
+    def when(cls, *tasks, **kwargs):
+        return CompositeTask(*tasks, **kwargs)
 
 
 class CompositeTask(BaseTask):
     is_standalone = False
 
-    def __init__(self, *sub_tasks, name=None):
-        super().__init__(name=name)
+    def __init__(self, *sub_tasks, needs_prev_result=False, name=None):
+        super().__init__(needs_prev_result=needs_prev_result, name=name)
         self._sub_tasks = [sub_task.local_root for sub_task in sub_tasks or []]
         for sub_task in self._sub_tasks:
             sub_task._parent = self

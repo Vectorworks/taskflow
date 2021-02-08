@@ -41,6 +41,7 @@ class TestBaseTask(object):
         assert task._result is None
         assert task._id is None
         assert task._name == 'Test name'
+        assert task._needs_prev_result is True
         assert task._prev is None
         assert task._next is None
         assert task._parent is None
@@ -54,6 +55,11 @@ class TestBaseTask(object):
         task = BaseTask()
         task._name = 'some name'
         assert task.name == task._name
+
+    def test_needs_prev_results(self):
+        task = BaseTask()
+        task._needs_prev_result = False
+        assert task.needs_prev_result == task._needs_prev_result
 
     def test_status(self):
         task = BaseTask()
@@ -171,6 +177,17 @@ class TestBaseTask(object):
         assert tuple(args) == (1, 2, 12345)
         assert kwargs == {'1': 1, '2': 2}
 
+    def test_override_arguments_prev_no_needs_prev_result(self):
+        root = BaseTask()
+        leaf = BaseTask()
+        root.then(leaf)
+        root._result = 12345
+
+        leaf._needs_prev_result = False
+        args, kwargs = leaf._override_arguments(*(1, 2), **{'1': 1, '2': 2})
+        assert tuple(args) == (1, 2)
+        assert kwargs == {'1': 1, '2': 2}
+
     def test_override_arguments_parent(self):
         root = BaseTask()
         leaf = BaseTask()
@@ -182,6 +199,20 @@ class TestBaseTask(object):
 
         args, kwargs = task._override_arguments(*(1, 2), **{'1': 1, '2': 2})
         assert tuple(args) == (1, 2, 12345)
+        assert kwargs == {'1': 1, '2': 2}
+
+    def test_override_arguments_parent_no_needs_prev_result(self):
+        root = BaseTask()
+        leaf = BaseTask()
+        root.then(leaf)
+        root._result = 12345
+
+        task = BaseTask()
+        task._parent = leaf
+
+        leaf._needs_prev_result = False
+        args, kwargs = task._override_arguments(*(1, 2), **{'1': 1, '2': 2})
+        assert tuple(args) == (1, 2)
         assert kwargs == {'1': 1, '2': 2}
 
     def test_get_all_tasks(self):
