@@ -243,11 +243,11 @@ class CompositeTask(BaseTask):
 
     @property
     def status(self):
-        if any(sub_task.status == self.STATUS_HALTED for sub_task in self._sub_tasks):
+        if any(sub_task.leaf.status == self.STATUS_HALTED for sub_task in self._sub_tasks):
             return self.STATUS_HALTED
-        elif any(sub_task.status in [self.STATUS_PENDING, self.STATUS_RUNNING] for sub_task in self._sub_tasks):
-            return self.STATUS_PENDING
-        return self.STATUS_COMPLETE
+        elif all(sub_task.leaf.status == self.STATUS_COMPLETE for sub_task in self._sub_tasks):
+            return self.STATUS_COMPLETE
+        return self.STATUS_PENDING
 
     @property
     def is_halted(self):

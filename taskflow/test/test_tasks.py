@@ -405,6 +405,22 @@ class TestComposite(object):
         sub1._status = BaseTask.STATUS_COMPLETE
         assert task.status == BaseTask.STATUS_COMPLETE
 
+    def test_status_nested(self):
+        sub1 = Task(func=Handlers.repeat)
+        sub11 = sub1.then(Task(func=Handlers.repeat))
+
+        task = CompositeTask(sub1)
+        assert task.status == BaseTask.STATUS_PENDING
+
+        sub1._status = BaseTask.STATUS_RUNNING
+        assert task.status == BaseTask.STATUS_PENDING
+
+        sub1._status = BaseTask.STATUS_COMPLETE
+        assert task.status == BaseTask.STATUS_PENDING
+
+        sub11._status = BaseTask.STATUS_COMPLETE
+        assert task.status == BaseTask.STATUS_COMPLETE
+
     def test_is_halted(self):
         sub1 = Task(func=Handlers.repeat)
         sub2 = Task(func=Handlers.repeat)
