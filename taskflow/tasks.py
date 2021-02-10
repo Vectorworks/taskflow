@@ -104,8 +104,7 @@ class BaseTask(object):
     def _override_arguments(self, *args, **kwargs):
         if self._needs_prev_result:
             if self.prev:
-                # composite tasks already return a list of results and we don't want to wrap these twice
-                prev_result = [self.prev.result] if self.prev.is_standalone else self.prev.result
+                prev_result = [self.prev.result]
                 return list(args) + prev_result, kwargs
 
             if self._parent:

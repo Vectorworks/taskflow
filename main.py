@@ -9,14 +9,14 @@ def get_test_tasks():
     # 5*2 + (5+6)*(2+4) + 4
     return (
         Task.when(
-            Task(product, args=[5, 2], name='5*2'),
+            Task(product, args=([5, 2],), name='5*2'),
             Task.when(
-                Task(Test.sum, args=[5, 6], name='5+6'),
-                Task(Test.sum, args=[2, 4], name='2+4')
+                Task(Test.sum, args=([5, 6],), name='5+6'),
+                Task(Test.sum, args=([2, 4],), name='2+4')
             ).then(
                 Task(product, name='product')
             ),
-            Task(Test.const, args=[4], name='4'),
+            Task(Test.const, args=(4,), name='4'),
         ).then(
             Task(Test.sum, name='sum')
         )
@@ -48,27 +48,3 @@ def run():
 
 if __name__ == '__main__':
     run()
-
-
-# flow = Flow(
-#     Task(
-#         Test.const, args=[12]
-#     ).then(
-#         Task(Test.sum, args=[1, 2])
-#     ).then(
-#         Task(Test.sum, args=[5])
-#     ).then(
-#         Task(product, args=[3])
-#     )
-# )
-#
-# flow = Flow(
-#     Task.when(
-#         Task(Test.const, args=[12]),
-#         Task(Test.sum, args=[1, 2]),
-#         Task(Test.sum, args=[5]),
-#         Task(product, args=[3]),
-#     ).then(
-#         Task(Test.const)
-#     )
-# )
