@@ -125,6 +125,26 @@ class TestBaseTask(object):
             root.then(mid)
             root.then(leaf)
 
+    def test_then_branch(self):
+        root = BaseTask()
+        mid = BaseTask()
+        leaf = BaseTask()
+
+        result = root.then(mid.then(leaf))
+        assert result == leaf
+
+        assert root.prev is None
+        assert root.next == mid
+
+        assert mid.prev == root
+        assert mid.next == leaf
+
+        assert leaf.prev == mid
+        assert leaf.next is None
+
+        assert root.leaf == leaf
+        assert leaf.local_root == root
+
     def test_is_halted_not(self):
         task = BaseTask()
         task._status = BaseTask.STATUS_PENDING

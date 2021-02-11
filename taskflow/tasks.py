@@ -126,9 +126,10 @@ class BaseTask(object):
             raise RuntimeError(
                 'Unsupported operation. Multiple then operations are not support. Use a CompositeTask instead.')
 
+        task = task.local_root
         self._next = task
         task._prev = self
-        return task
+        return task.leaf
 
     def _get_task_data(self):
         return {
