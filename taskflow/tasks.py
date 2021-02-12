@@ -233,7 +233,7 @@ class Task(BaseTask):
 class CompositeTask(BaseTask):
     is_standalone = False
 
-    def __init__(self, *sub_tasks, needs_prev_result=False, name=None):
+    def __init__(self, *sub_tasks, needs_prev_result=True, name=None):
         super().__init__(needs_prev_result=needs_prev_result, name=name)
         self._sub_tasks = [sub_task.local_root for sub_task in sub_tasks or []]
         for sub_task in self._sub_tasks:
