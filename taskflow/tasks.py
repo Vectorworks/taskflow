@@ -147,7 +147,8 @@ class BaseTask(object):
     def to_list(self):
         result = [self._get_task_data()]
         result[0].update({
-            'prev': self._prev.id if self._prev else None
+            'prev': self._prev.id if self._prev else None,
+            'next': self._next.id if self._next else None,
         })
 
         if self._next:
