@@ -18,7 +18,7 @@ class BaseTask(object):
         self._status = self.STATUS_PENDING
         self._result = None
         self._error = None
-        self._error_tb = None
+        self._exc_info = None
         self._id = None
         self._name = name
         self._needs_prev_result = needs_prev_result
