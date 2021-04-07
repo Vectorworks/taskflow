@@ -1,3 +1,5 @@
+import sys
+
 from taskflow.defaults import Defaults
 from taskflow.type_helpers import function_from_string, function_to_string, type_to_string
 
@@ -16,6 +18,7 @@ class BaseTask(object):
         self._status = self.STATUS_PENDING
         self._result = None
         self._error = None
+        self._error_tb = None
         self._id = None
         self._name = name
         self._needs_prev_result = needs_prev_result
@@ -43,6 +46,10 @@ class BaseTask(object):
     @property
     def error(self):
         return self._error
+
+    @property
+    def exc_info(self):
+        return self._exc_info
 
     @property
     def result(self):
@@ -206,6 +213,7 @@ class Task(BaseTask):
         except Exception as ex:
             self._status = self.STATUS_HALTED if self._runs >= self.max_runs else self.STATUS_PENDING
             self._error = ex
+            self._exc_info = sys.exc_info()
 
     def __str__(self):
         return self._name if self._name else f'{function_to_string(self._func)}:{self._args}'

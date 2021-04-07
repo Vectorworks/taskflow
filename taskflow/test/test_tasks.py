@@ -76,6 +76,11 @@ class TestBaseTask(object):
         task._error = 'err'
         assert task.error == task._error
 
+    def test_error_tb(self):
+        task = BaseTask()
+        task._exc_info = (object(), object(), object())
+        assert task.exc_info == task._exc_info
+
     def test_runs(self):
         task = BaseTask()
         task._runs = 5
