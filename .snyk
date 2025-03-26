@@ -1,3 +1,9 @@
 ---
 language-settings:
   python: '3.10'
+
+ignore:
+  'snyk:lic:pip:chardet:LGPL-2.1':
+    - '*':
+        reason: Not a security threat. We do not distribute this project outside our company.
+        expires: 2110-01-08T14:00:00.00Z
