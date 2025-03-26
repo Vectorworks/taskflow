@@ -305,7 +305,7 @@ class TestBaseTask(object):
         data['prev'] = prev_task
         task1 = BaseTask.from_data(data)
 
-        assert type(task1) == BaseTask
+        assert type(task1) is BaseTask
         assert task1.max_runs == task.max_runs
         assert task1._id == task._id
         assert task1._name == task._name
@@ -386,14 +386,14 @@ class TestTask(object):
         data = task.to_list()[0]
         task1 = Task.from_data(data)
 
-        assert type(task1) == Task
+        assert type(task1) is Task
         assert task1._func == Handlers.repeat
         assert task1._args == (1, 2)
 
     def test_when(self):
         tasks = [Task(func=Handlers.repeat), Task(func=Handlers.repeat)]
         composite = Task.when(*tasks)
-        assert type(composite) == CompositeTask
+        assert type(composite) is CompositeTask
         assert composite._sub_tasks == tasks
 
 

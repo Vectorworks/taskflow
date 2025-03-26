@@ -1,5 +1,5 @@
 # dev dependencies
-pytest==6.2.2
-pytest-cov==2.11.1
-pytest-mock==3.5.1
-tox==3.21.3
+pytest==8.3.5
+pytest-cov==6.0.0
+pytest-mock==3.14.0
+tox==4.15.0
