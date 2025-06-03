@@ -36,7 +36,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: .tox
-        key: ${{ runner.os }}-tox-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/tox.ini') }}-${{ hashFiles('**/setup.cfg') }}
+        key: ${{ runner.os }}-tox-${{ hashFiles('**/requirements-dev.txt') }}-${{ hashFiles('**/pyproject.toml') }}
 
     - name: Run tox on the repo
       run: |

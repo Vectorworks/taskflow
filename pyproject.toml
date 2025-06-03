@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=80.3.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "taskflow"
+dynamic = ["version", "optional-dependencies"]
+urls = {"homepage" = "https://git@github.com/Vectorworks/taskflow.git"}
+description = "A simple workflow library."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+
+[tool.setuptools.dynamic]
+version = {attr = "taskflow.__version__"}
+optional-dependencies = { dev = { file = ["requirements-dev.txt"] } }
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+taskflow = ["**/*"]
+
+[tool.flake8]
+exclude = [".cache",".git",".tox",".vscode"]
+max-line-length = 120
+
+[tool.pylint]
+exclude = [".cache", ".git", ".tox", ".vscode"]
+max-line-length = 120
+
+[tool.pycodestyle]
+max-line-length = 120
+
+[tool.isort]
+skip = [".cache", ".git", ".tox", ".vscode"]
+indent = 4
+line_length = 120
+multi_line_output = 2
+combine_as_imports = true
+include_trailing_comma = true
+default_section = "THIRDPARTY"
+known_libraries = []
+known_first_party = ["taskflow"]
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "LIBRARIES", "FIRSTPARTY", "LOCALFOLDER"]
+
+[tool.tox]
+envlist = ["py39", "py310", "py311", "py312", "lint", "isort"]
+isolated_build = true
+skip_missing_interpreters = true
+
+[tool.tox.env.default]
+recreate = false
+alwayscopy = true
+extras = ["dev"]
+setenv = {PYTHONPATH = "{toxinidir}"}
+commands = ["py.test -v"]
+
+[tool.tox.env.lint]
+extras = ["dev"]
+commands = [["python", "-m", "flake8", "taskflow"]]
+
+[tool.tox.env.isort]
+extras = ["dev"]
+commands = [["python", "-m", "isort", "--check-only", "--diff", "taskflow"]]
