@@ -21,15 +21,11 @@ where = ["."]
 [tool.setuptools.package-data]
 taskflow = ["**/*"]
 
+[tool.pytest.ini_options]
+testpaths = ["taskflow/tests"]
+
 [tool.flake8]
-exclude = [".cache",".git",".tox",".vscode"]
-max-line-length = 120
-
-[tool.pylint]
 exclude = [".cache", ".git", ".tox", ".vscode"]
-max-line-length = 120
-
-[tool.pycodestyle]
 max-line-length = 120
 
 [tool.isort]
