@@ -1,5 +1,34 @@
 # taskflow
 
+## Install
+In the project root, run:
+
+```bash
+pip install .
+```
+or
+```bash
+pip install taskflow
+```
+or add this to your `requirements.txt` file:
+
+`taskflow @ git+ssh://git@github.com/Vectorworks/taskflow.git@v{tag}`
+
+## Development
+If you are using a virtual environment, make sure to activate it before running the following commands.
+
+To run tox locally you need only the dev requirements, which can be installed with:
+
+```bash
+pip install -e .[dev]
+```
+or
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+
 [![Build Status](https://travis-ci.com/Vectorworks/taskflow.svg?branch=master)](https://travis-ci.com/Vectorworks/taskflow)
 
 taskflow is a simple workflow library, designed to be easily extended to support asynchronous distributed execution.   
