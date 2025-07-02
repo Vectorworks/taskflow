@@ -5,10 +5,10 @@ from taskflow.type_helpers import function_from_string, function_to_string, type
 
 
 class BaseTask(object):
-    STATUS_PENDING = 'pending'
-    STATUS_RUNNING = 'running'
-    STATUS_HALTED = 'halted'
-    STATUS_COMPLETE = 'complete'
+    STATUS_PENDING = "pending"
+    STATUS_RUNNING = "running"
+    STATUS_HALTED = "halted"
+    STATUS_COMPLETE = "complete"
 
     is_standalone = True
 
@@ -131,7 +131,8 @@ class BaseTask(object):
     def then(self, task):
         if self._next:
             raise RuntimeError(
-                'Unsupported operation. Multiple then operations are not support. Use a CompositeTask instead.')
+                "Unsupported operation. Multiple then operations are not support. Use a CompositeTask instead."
+            )
 
         task = task.local_root
         self._next = task
@@ -140,23 +141,25 @@ class BaseTask(object):
 
     def _get_task_data(self):
         return {
-            'class': type_to_string(type(self)),
-            'max_runs': self.max_runs,
-            'id': self._id,
-            'name': self._name,
-            'needs_prev_result': self._needs_prev_result,
-            'runs': self._runs,
-            'status': self._status,
-            'result': self._result,
-            'is_standalone': self.is_standalone
+            "class": type_to_string(type(self)),
+            "max_runs": self.max_runs,
+            "id": self._id,
+            "name": self._name,
+            "needs_prev_result": self._needs_prev_result,
+            "runs": self._runs,
+            "status": self._status,
+            "result": self._result,
+            "is_standalone": self.is_standalone,
         }
 
     def to_list(self):
         result = [self._get_task_data()]
-        result[0].update({
-            'prev': self._prev.id if self._prev else None,
-            'next': self._next.id if self._next else None,
-        })
+        result[0].update(
+            {
+                "prev": self._prev.id if self._prev else None,
+                "next": self._next.id if self._next else None,
+            }
+        )
 
         if self._next:
             result.extend(self._next.to_list())
@@ -167,16 +170,16 @@ class BaseTask(object):
     def from_data(cls, task_data):
         result = cls()
 
-        result.max_runs = task_data['max_runs']
-        result._runs = task_data['runs']
-        result._status = task_data['status']
-        result._result = task_data['result']
-        result._id = task_data['id']
-        result._name = task_data['name']
-        result._needs_prev_result = task_data['needs_prev_result']
+        result.max_runs = task_data["max_runs"]
+        result._runs = task_data["runs"]
+        result._status = task_data["status"]
+        result._result = task_data["result"]
+        result._id = task_data["id"]
+        result._name = task_data["name"]
+        result._needs_prev_result = task_data["needs_prev_result"]
 
-        if task_data['prev']:
-            task_data['prev'].then(result)
+        if task_data["prev"]:
+            task_data["prev"].then(result)
 
         return result
 
@@ -216,22 +219,19 @@ class Task(BaseTask):
             self._exc_info = sys.exc_info()
 
     def __str__(self):
-        return self._name if self._name else f'{function_to_string(self._func)}:{self._args}'
+        return self._name if self._name else f"{function_to_string(self._func)}:{self._args}"
 
     def _get_task_data(self):
         result = super()._get_task_data()
-        result.update({
-            'func': function_to_string(self._func),
-            'args': self._args
-        })
+        result.update({"func": function_to_string(self._func), "args": self._args})
 
         return result
 
     @classmethod
     def from_data(cls, task_data):
         result = super().from_data(task_data)
-        result._func = function_from_string(task_data['func'])
-        result._args = task_data['args']
+        result._func = function_from_string(task_data["func"])
+        result._args = task_data["args"]
         return result
 
     @classmethod
@@ -282,7 +282,7 @@ class CompositeTask(BaseTask):
         return self._sub_tasks[:]
 
     def run(self, **kwargs):
-        raise RuntimeError('Composite tasks cannot be run directly')
+        raise RuntimeError("Composite tasks cannot be run directly")
 
     def to_list(self):
         result = []
@@ -290,16 +290,14 @@ class CompositeTask(BaseTask):
             result += sub_task.to_list()
 
         base_list = super().to_list()
-        base_list[0].update({
-            'sub_tasks': [sub_task.id for sub_task in self._sub_tasks]
-        })
+        base_list[0].update({"sub_tasks": [sub_task.id for sub_task in self._sub_tasks]})
 
         return result + base_list
 
     @classmethod
     def from_data(cls, task_data):
         result = super().from_data(task_data)
-        result._sub_tasks = [sub_task.local_root for sub_task in task_data['sub_tasks'] or []]
+        result._sub_tasks = [sub_task.local_root for sub_task in task_data["sub_tasks"] or []]
         for sub_task in result._sub_tasks:
             sub_task._parent = result
 

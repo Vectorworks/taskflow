@@ -34,13 +34,13 @@ class TestBaseTask(object):
         assert task._parent is None
 
     def test_init__name(self):
-        task = BaseTask(name='Test name')
+        task = BaseTask(name="Test name")
         assert task.max_runs == Defaults.max_runs
         assert task._runs == 0
         assert task._status == BaseTask.STATUS_PENDING
         assert task._result is None
         assert task._id is None
-        assert task._name == 'Test name'
+        assert task._name == "Test name"
         assert task._needs_prev_result is True
         assert task._prev is None
         assert task._next is None
@@ -53,7 +53,7 @@ class TestBaseTask(object):
 
     def test_name(self):
         task = BaseTask()
-        task._name = 'some name'
+        task._name = "some name"
         assert task.name == task._name
 
     def test_needs_prev_results(self):
@@ -73,7 +73,7 @@ class TestBaseTask(object):
 
     def test_error(self):
         task = BaseTask()
-        task._error = 'err'
+        task._error = "err"
         assert task.error == task._error
 
     def test_error_tb(self):
@@ -88,17 +88,17 @@ class TestBaseTask(object):
 
     def test_prev(self):
         task = BaseTask()
-        task._prev = 'Illegal'
+        task._prev = "Illegal"
         assert task.prev == task._prev
 
     def test_next(self):
         task = BaseTask()
-        task._next = 'Illegal'
+        task._next = "Illegal"
         assert task.next == task._next
 
     def test_prent(self):
         task = BaseTask()
-        task._parent = 'Illegal'
+        task._parent = "Illegal"
         assert task.parent == task._parent
 
     def test_then(self):
@@ -188,9 +188,9 @@ class TestBaseTask(object):
 
     def test_override_arguments_no_override(self):
         task = BaseTask()
-        args, kwargs = task._override_arguments(*(1, 2), **{'1': 1, '2': 2})
+        args, kwargs = task._override_arguments(*(1, 2), **{"1": 1, "2": 2})
         assert tuple(args) == (1, 2)
-        assert kwargs == {'1': 1, '2': 2}
+        assert kwargs == {"1": 1, "2": 2}
 
     def test_override_arguments_prev(self):
         root = BaseTask()
@@ -198,9 +198,9 @@ class TestBaseTask(object):
         root.then(leaf)
         root._result = 12345
 
-        args, kwargs = leaf._override_arguments(*(1, 2), **{'1': 1, '2': 2})
+        args, kwargs = leaf._override_arguments(*(1, 2), **{"1": 1, "2": 2})
         assert tuple(args) == (1, 2, 12345)
-        assert kwargs == {'1': 1, '2': 2}
+        assert kwargs == {"1": 1, "2": 2}
 
     def test_override_arguments_prev_no_needs_prev_result(self):
         root = BaseTask()
@@ -209,9 +209,9 @@ class TestBaseTask(object):
         root._result = 12345
 
         leaf._needs_prev_result = False
-        args, kwargs = leaf._override_arguments(*(1, 2), **{'1': 1, '2': 2})
+        args, kwargs = leaf._override_arguments(*(1, 2), **{"1": 1, "2": 2})
         assert tuple(args) == (1, 2)
-        assert kwargs == {'1': 1, '2': 2}
+        assert kwargs == {"1": 1, "2": 2}
 
     def test_override_arguments_parent(self):
         root = BaseTask()
@@ -222,9 +222,9 @@ class TestBaseTask(object):
         task = BaseTask()
         task._parent = leaf
 
-        args, kwargs = task._override_arguments(*(1, 2), **{'1': 1, '2': 2})
+        args, kwargs = task._override_arguments(*(1, 2), **{"1": 1, "2": 2})
         assert tuple(args) == (1, 2, 12345)
-        assert kwargs == {'1': 1, '2': 2}
+        assert kwargs == {"1": 1, "2": 2}
 
     def test_override_arguments_parent_no_needs_prev_result(self):
         root = BaseTask()
@@ -236,9 +236,9 @@ class TestBaseTask(object):
         task._parent = leaf
 
         leaf._needs_prev_result = False
-        args, kwargs = task._override_arguments(*(1, 2), **{'1': 1, '2': 2})
+        args, kwargs = task._override_arguments(*(1, 2), **{"1": 1, "2": 2})
         assert tuple(args) == (1, 2)
-        assert kwargs == {'1': 1, '2': 2}
+        assert kwargs == {"1": 1, "2": 2}
 
     def test_get_all_tasks(self):
         task = BaseTask()
@@ -260,17 +260,17 @@ class TestBaseTask(object):
         task._runs = 3
         task._status = BaseTask.STATUS_RUNNING
         task._id = 4
-        task._name = 'asdf'
+        task._name = "asdf"
 
         data = task._get_task_data()
-        assert data['class'] == 'taskflow.tasks.BaseTask'
-        assert data['max_runs'] == task.max_runs
-        assert data['id'] == task.id
-        assert data['name'] == task.name
-        assert data['runs'] == task._runs
-        assert data['status'] == task._status
-        assert data['result'] == task._result
-        assert data['is_standalone'] == task.is_standalone
+        assert data["class"] == "taskflow.tasks.BaseTask"
+        assert data["max_runs"] == task.max_runs
+        assert data["id"] == task.id
+        assert data["name"] == task.name
+        assert data["runs"] == task._runs
+        assert data["status"] == task._status
+        assert data["result"] == task._result
+        assert data["is_standalone"] == task.is_standalone
 
     def test_to_list(self):
         root = BaseTask()
@@ -282,14 +282,14 @@ class TestBaseTask(object):
         tasks_data = root.to_list()
         assert len(tasks_data) == 3
 
-        assert tasks_data[0]['id'] == 10
-        assert tasks_data[0]['prev'] is None
+        assert tasks_data[0]["id"] == 10
+        assert tasks_data[0]["prev"] is None
 
-        assert tasks_data[1]['id'] == 11
-        assert tasks_data[1]['prev'] == 10
+        assert tasks_data[1]["id"] == 11
+        assert tasks_data[1]["prev"] == 10
 
-        assert tasks_data[2]['id'] == 12
-        assert tasks_data[2]['prev'] == 11
+        assert tasks_data[2]["id"] == 12
+        assert tasks_data[2]["prev"] == 11
 
     def test_from_data(self):
         task = BaseTask()
@@ -297,12 +297,12 @@ class TestBaseTask(object):
         task._runs = 3
         task._status = BaseTask.STATUS_RUNNING
         task._id = 4
-        task._name = 'asdf'
+        task._name = "asdf"
         task.set_ids()
 
         data = task.to_list()[0]
         prev_task = BaseTask()
-        data['prev'] = prev_task
+        data["prev"] = prev_task
         task1 = BaseTask.from_data(data)
 
         assert type(task1) is BaseTask
@@ -316,41 +316,52 @@ class TestBaseTask(object):
 
     def test_str(self):
         task = BaseTask()
-        assert str(task) == 'taskflow.tasks.BaseTask'
+        assert str(task) == "taskflow.tasks.BaseTask"
 
     def test_str_name(self):
-        task = BaseTask(name='test')
-        assert str(task) == 'test'
+        task = BaseTask(name="test")
+        assert str(task) == "test"
 
 
 class TestTask(object):
     def test_init(self):
-        task = Task(func=Handlers.repeat, args=(1, 2), max_runs=25, name='test')
+        task = Task(func=Handlers.repeat, args=(1, 2), max_runs=25, name="test")
         assert task.max_runs == 25
-        assert task.name == 'test'
+        assert task.name == "test"
         assert task._func == Handlers.repeat
         assert task._args == (1, 2)
 
     def test_func_name(self):
         task = Task(func=Handlers.repeat)
-        assert task.func_name == 'taskflow.test.fixtures.Handlers.repeat'
+        assert task.func_name == "taskflow.test.fixtures.Handlers.repeat"
 
     def test_args(self):
-        task = Task(func=Handlers.repeat, args=(1, 2,))
-        assert task.args == (1, 2,)
+        task = Task(
+            func=Handlers.repeat,
+            args=(
+                1,
+                2,
+            ),
+        )
+        assert task.args == (
+            1,
+            2,
+        )
 
     def test_run(self, mocker):
-        mocker.patch('taskflow.test.fixtures.Handlers.repeat')
+        mocker.patch("taskflow.test.fixtures.Handlers.repeat")
         task = Task(func=Handlers.repeat, args=(1, 2))
-        task.run(**{'1': 1})
+        task.run(**{"1": 1})
 
         assert task.status == BaseTask.STATUS_COMPLETE
         assert task.error is None
         assert task._runs == 1
-        Handlers.repeat.assert_called_once_with(*(1, 2), **{'1': 1})
+        Handlers.repeat.assert_called_once_with(*(1, 2), **{"1": 1})
 
     def test_run_fail(self, mocker):
-        mocker.patch('taskflow.test.fixtures.Handlers.repeat', side_effect=Exception('Boom'))
+        mocker.patch(
+            "taskflow.test.fixtures.Handlers.repeat", side_effect=Exception("Boom")
+        )
         task = Task(func=Handlers.repeat, args=(1, 2))
         task.run()
 
@@ -359,7 +370,9 @@ class TestTask(object):
         assert task._runs == 1
 
     def test_run_fail_halt(self, mocker):
-        mocker.patch('taskflow.test.fixtures.Handlers.repeat', side_effect=Exception('Boom'))
+        mocker.patch(
+            "taskflow.test.fixtures.Handlers.repeat", side_effect=Exception("Boom")
+        )
         task = Task(func=Handlers.repeat, args=(1, 2), max_runs=1)
         task.run()
 
@@ -368,18 +381,18 @@ class TestTask(object):
 
     def test_str(self):
         task = Task(func=Handlers.repeat, args=(1, 2))
-        assert str(task) == f'taskflow.test.fixtures.Handlers.repeat:{(1, 2)}'
+        assert str(task) == f"taskflow.test.fixtures.Handlers.repeat:{(1, 2)}"
 
     def test_str_name(self):
-        task = Task(func=Handlers.repeat, args=(1, 2), name='test')
-        assert str(task) == 'test'
+        task = Task(func=Handlers.repeat, args=(1, 2), name="test")
+        assert str(task) == "test"
 
     def test_get_task_data(self):
-        task = Task(func=Handlers.repeat, args=(1, 2), name='test')
+        task = Task(func=Handlers.repeat, args=(1, 2), name="test")
         data = task._get_task_data()
-        assert data['name'] == 'test'
-        assert data['func'] == 'taskflow.test.fixtures.Handlers.repeat'
-        assert data['args'] == (1, 2)
+        assert data["name"] == "test"
+        assert data["func"] == "taskflow.test.fixtures.Handlers.repeat"
+        assert data["args"] == (1, 2)
 
     def test_from_data(self):
         task = Task(func=Handlers.repeat, args=(1, 2))
@@ -404,8 +417,8 @@ class TestComposite(object):
         sub21 = Task(func=Handlers.repeat)
         sub2.then(sub21)
 
-        task = CompositeTask(sub1, sub21, name='composite-test')
-        assert task.name == 'composite-test'
+        task = CompositeTask(sub1, sub21, name="composite-test")
+        assert task.name == "composite-test"
         assert task._sub_tasks == [sub1, sub2]
         assert sub1.parent == task
         assert sub2.parent == task
@@ -528,21 +541,21 @@ class TestComposite(object):
 
         tasks_data = task.to_list()
         assert len(tasks_data) == 5
-        assert tasks_data[0]['id'] == 1
-        assert tasks_data[1]['id'] == 2
-        assert tasks_data[2]['id'] == 3
-        assert tasks_data[3]['id'] == 4
-        assert tasks_data[4]['id'] == 5
-        assert tasks_data[3]['sub_tasks'] == [1, 2]
+        assert tasks_data[0]["id"] == 1
+        assert tasks_data[1]["id"] == 2
+        assert tasks_data[2]["id"] == 3
+        assert tasks_data[3]["id"] == 4
+        assert tasks_data[4]["id"] == 5
+        assert tasks_data[3]["sub_tasks"] == [1, 2]
 
     def test_from_data(self):
         task = CompositeTask(Task(func=Handlers.repeat), Task(func=Handlers.repeat))
         task.set_ids(starting_id=1)
 
         data = task.to_list()[0]
-        data['sub_tasks'] = [Task(func=Handlers.repeat), Task(func=Handlers.repeat)]
+        data["sub_tasks"] = [Task(func=Handlers.repeat), Task(func=Handlers.repeat)]
 
         task1 = CompositeTask.from_data(data)
-        assert task1._sub_tasks == data['sub_tasks']
-        assert data['sub_tasks'][0].parent == task1
-        assert data['sub_tasks'][1].parent == task1
+        assert task1._sub_tasks == data["sub_tasks"]
+        assert data["sub_tasks"][0].parent == task1
+        assert data["sub_tasks"][1].parent == task1
