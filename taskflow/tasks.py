@@ -1,11 +1,7 @@
 import sys
 
 from taskflow.defaults import Defaults
-from taskflow.type_helpers import (
-    function_from_string,
-    function_to_string,
-    type_to_string,
-)
+from taskflow.type_helpers import function_from_string, function_to_string, type_to_string
 
 
 class BaseTask(object):
@@ -193,12 +189,8 @@ class BaseTask(object):
 
 
 class Task(BaseTask):
-    def __init__(
-        self, func=None, args=None, max_runs=None, needs_prev_result=True, name=None
-    ):
-        super().__init__(
-            max_runs=max_runs, needs_prev_result=needs_prev_result, name=name
-        )
+    def __init__(self, func=None, args=None, max_runs=None, needs_prev_result=True, name=None):
+        super().__init__(max_runs=max_runs, needs_prev_result=needs_prev_result, name=name)
         self._func = func
         self._args = args or []
 
@@ -223,20 +215,12 @@ class Task(BaseTask):
             self._error = None
             return self._result
         except Exception as ex:
-            self._status = (
-                self.STATUS_HALTED
-                if self._runs >= self.max_runs
-                else self.STATUS_PENDING
-            )
+            self._status = self.STATUS_HALTED if self._runs >= self.max_runs else self.STATUS_PENDING
             self._error = ex
             self._exc_info = sys.exc_info()
 
     def __str__(self):
-        return (
-            self._name
-            if self._name
-            else f"{function_to_string(self._func)}:{self._args}"
-        )
+        return self._name if self._name else f"{function_to_string(self._func)}:{self._args}"
 
     def _get_task_data(self):
         result = super()._get_task_data()
@@ -270,13 +254,9 @@ class CompositeTask(BaseTask):
 
     @property
     def status(self):
-        if any(
-            sub_task.leaf.status == self.STATUS_HALTED for sub_task in self._sub_tasks
-        ):
+        if any(sub_task.leaf.status == self.STATUS_HALTED for sub_task in self._sub_tasks):
             return self.STATUS_HALTED
-        elif all(
-            sub_task.leaf.status == self.STATUS_COMPLETE for sub_task in self._sub_tasks
-        ):
+        elif all(sub_task.leaf.status == self.STATUS_COMPLETE for sub_task in self._sub_tasks):
             return self.STATUS_COMPLETE
         return self.STATUS_PENDING
 
@@ -311,18 +291,14 @@ class CompositeTask(BaseTask):
             result += sub_task.to_list()
 
         base_list = super().to_list()
-        base_list[0].update(
-            {"sub_tasks": [sub_task.id for sub_task in self._sub_tasks]}
-        )
+        base_list[0].update({"sub_tasks": [sub_task.id for sub_task in self._sub_tasks]})
 
         return result + base_list
 
     @classmethod
     def from_data(cls, task_data):
         result = super().from_data(task_data)
-        result._sub_tasks = [
-            sub_task.local_root for sub_task in task_data["sub_tasks"] or []
-        ]
+        result._sub_tasks = [sub_task.local_root for sub_task in task_data["sub_tasks"] or []]
         for sub_task in result._sub_tasks:
             sub_task._parent = result
 
