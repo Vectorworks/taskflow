@@ -148,7 +148,8 @@ class BaseTask(object):
             'runs': self._runs,
             'status': self._status,
             'result': self._result,
-            'is_standalone': self.is_standalone
+            'is_standalone': self.is_standalone,
+            'part_of_composition_task': bool(self.is_standalone and self.parent),
         }
 
     def to_list(self):
