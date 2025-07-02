@@ -260,7 +260,7 @@ class CompositeTask(BaseTask):
     def sub_tasks_to_list(self):
         result = []
         for sub_task in self._sub_tasks:
-            result.append(sub_task.to_list())
+            result.extend(sub_task.to_list())
 
         return result
 
