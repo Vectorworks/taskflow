@@ -227,7 +227,7 @@ class Task(BaseTask):
             {
                 "func": function_to_string(self._func),
                 "args": self._args,
-                "part_of_composition_task": bool(self.is_standalone and self._parent),
+                "part_of_composition_task": bool(self.is_standalone and self.local_root),
             }
         )
 
