@@ -3,7 +3,7 @@ from importlib import import_module
 
 
 def type_to_string(type_object):
-    return f'{type_object.__module__}.{type_object.__name__}'
+    return f"{type_object.__module__}.{type_object.__name__}"
 
 
 def type_from_string(type_name):
@@ -12,16 +12,16 @@ def type_from_string(type_name):
 
 
 def function_to_string(func):
-    cls = getattr(func, '__self__', None)
+    cls = getattr(func, "__self__", None)
     if inspect.isclass(cls):
-        return f'{cls.__module__}.{cls.__qualname__}.{func.__name__}'
+        return f"{cls.__module__}.{cls.__qualname__}.{func.__name__}"
 
-    func = getattr(func, '__func__', func)
-    return f'{func.__module__}.{func.__qualname__}'
+    func = getattr(func, "__func__", func)
+    return f"{func.__module__}.{func.__qualname__}"
 
 
 def function_from_string(func_path):
-    container_name, func_name = func_path.rsplit('.', maxsplit=1)
+    container_name, func_name = func_path.rsplit(".", maxsplit=1)
 
     try:
         container = import_module(container_name)
@@ -38,7 +38,7 @@ def import_string(dotted_path):
     last name in the path. Raise ImportError if the import failed.
     """
     try:
-        module_path, class_name = dotted_path.rsplit('.', 1)
+        module_path, class_name = dotted_path.rsplit(".", 1)
     except ValueError as err:
         raise ImportError("%s doesn't look like a module path" % dotted_path) from err
 
@@ -47,6 +47,4 @@ def import_string(dotted_path):
     try:
         return getattr(module, class_name)
     except AttributeError as err:
-        raise ImportError('Module "%s" does not define a "%s" attribute/class' % (
-            module_path, class_name)
-        ) from err
+        raise ImportError('Module "%s" does not define a "%s" attribute/class' % (module_path, class_name)) from err
