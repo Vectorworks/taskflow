@@ -1,7 +1,11 @@
 import sys
 
 from taskflow.defaults import Defaults
-from taskflow.type_helpers import function_from_string, function_to_string, type_to_string
+from taskflow.type_helpers import (
+    function_from_string,
+    function_to_string,
+    type_to_string,
+)
 
 
 class BaseTask(object):
@@ -150,9 +154,8 @@ class BaseTask(object):
             "status": self._status,
             "result": self._result,
             "is_standalone": self.is_standalone,
-            "part_of_composition_task": bool(self.is_standalone and self.parent),
+            "part_of_composition_task": bool(self.is_standalone and self._parent),
             "parent": self.parent,
-            "next": self.next,
         }
 
     def to_list(self):
