@@ -223,13 +223,7 @@ class Task(BaseTask):
 
     def _get_task_data(self):
         result = super()._get_task_data()
-        result.update(
-            {
-                "func": function_to_string(self._func),
-                "args": self._args,
-                "part_of_composition_task": bool(self.is_standalone and self.local_root),
-            }
-        )
+        result.update({"func": function_to_string(self._func), "args": self._args})
 
         return result
 
