@@ -251,6 +251,13 @@ class CompositeTask(BaseTask):
         # not a standalone task, so only the calculated property makes sense
         self._status = None
 
+    def sub_tasks_to_list(self):
+        result = []
+        for sub_task in self._sub_tasks:
+            result.extend(sub_task.to_list())
+
+        return result
+
     @property
     def status(self):
         if any(sub_task.leaf.status == self.STATUS_HALTED for sub_task in self._sub_tasks):
@@ -285,14 +292,12 @@ class CompositeTask(BaseTask):
         raise RuntimeError("Composite tasks cannot be run directly")
 
     def to_list(self):
-        result = []
-        for sub_task in self._sub_tasks:
-            result += sub_task.to_list()
+        sub_tasks_result = self.sub_tasks_to_list()
 
         base_list = super().to_list()
         base_list[0].update({"sub_tasks": [sub_task.id for sub_task in self._sub_tasks]})
 
-        return result + base_list
+        return sub_tasks_result + base_list
 
     @classmethod
     def from_data(cls, task_data):
