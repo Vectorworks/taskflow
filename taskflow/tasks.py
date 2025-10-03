@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime
 
 from taskflow.defaults import Defaults
 from taskflow.type_helpers import function_from_string, function_to_string, type_to_string
@@ -192,6 +193,7 @@ class Task(BaseTask):
         super().__init__(max_runs=max_runs, needs_prev_result=needs_prev_result, name=name)
         self._func = func
         self._args = args or []
+        self._execution_start_time = None
 
     @property
     def func_name(self):
@@ -201,6 +203,10 @@ class Task(BaseTask):
     def args(self):
         return self._args
 
+    @property
+    def execution_start_time(self):
+        return self._execution_start_time
+
     def run(self, **kwargs):
         # overriding args with the prev result
         # use kwargs for persistent parameters to all Tasks
@@ -209,6 +215,7 @@ class Task(BaseTask):
 
         self._runs += 1
         try:
+            self._execution_start_time = datetime.now()
             self._result = self._func(*args, **kwargs)
             self._status = self.STATUS_COMPLETE
             self._error = None
