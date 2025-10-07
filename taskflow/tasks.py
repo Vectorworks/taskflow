@@ -193,7 +193,8 @@ class Task(BaseTask):
         super().__init__(max_runs=max_runs, needs_prev_result=needs_prev_result, name=name)
         self._func = func
         self._args = args or []
-        self._execution_start_time = None
+        self._date_updated = None
+        self._execution_delta_time = None
 
     @property
     def func_name(self):
@@ -204,8 +205,12 @@ class Task(BaseTask):
         return self._args
 
     @property
-    def execution_start_time(self):
-        return self._execution_start_time
+    def date_updated(self):
+        return self._date_updated
+
+    @property
+    def execution_delta_time(self):
+        return self._execution_delta_time
 
     def run(self, **kwargs):
         # overriding args with the prev result
@@ -224,6 +229,10 @@ class Task(BaseTask):
             self._status = self.STATUS_HALTED if self._runs >= self.max_runs else self.STATUS_PENDING
             self._error = ex
             self._exc_info = sys.exc_info()
+        finally:
+            self._date_updated = datetime.now()
+            self._execution_delta_time = (self._date_updated - self._execution_start_time).total_seconds()
+
 
     def __str__(self):
         return self._name if self._name else f"{function_to_string(self._func)}:{self._args}"
