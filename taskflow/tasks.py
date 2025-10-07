@@ -234,7 +234,6 @@ class Task(BaseTask):
             self._date_updated = datetime.now()
             self._execution_delta_time = (self._date_updated - self._execution_start_time).total_seconds()
 
-
     def __str__(self):
         return self._name if self._name else f"{function_to_string(self._func)}:{self._args}"
 
