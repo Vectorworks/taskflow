@@ -194,6 +194,7 @@ class Task(BaseTask):
         self._func = func
         self._args = args or []
         self._date_updated = None
+        self._execution_start_time = None
         self._execution_delta_time = None
 
     @property
