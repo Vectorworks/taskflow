@@ -193,7 +193,6 @@ class Task(BaseTask):
         super().__init__(max_runs=max_runs, needs_prev_result=needs_prev_result, name=name)
         self._func = func
         self._args = args or []
-        self._execution_end_time = None
         self._execution_start_time = None
         self._execution_delta_time = None
 
@@ -204,10 +203,6 @@ class Task(BaseTask):
     @property
     def args(self):
         return self._args
-
-    @property
-    def execution_end_time(self):
-        return self._execution_end_time
 
     @property
     def execution_delta_time(self):
@@ -231,8 +226,7 @@ class Task(BaseTask):
             self._error = ex
             self._exc_info = sys.exc_info()
         finally:
-            self._execution_end_time = datetime.now()
-            self._execution_delta_time = (self._execution_end_time - self._execution_start_time).total_seconds()
+            self._execution_delta_time = (datetime.now() - self._execution_start_time).total_seconds()
 
     def __str__(self):
         return self._name if self._name else f"{function_to_string(self._func)}:{self._args}"
