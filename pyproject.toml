@@ -40,8 +40,7 @@ known_first_party = ["taskflow"]
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "LIBRARIES", "FIRSTPARTY", "LOCALFOLDER"]
 
 [tool.tox]
-envlist = ["py39", "py310", "py311", "py312", "lint", "isort"]
-isolated_build = true
+envlist = ["py310-django32", "py310-django42", "py311-django42", "lint", "isort"]
 skip_missing_interpreters = true
 
 [tool.tox.env.default]
