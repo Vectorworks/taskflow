@@ -1,8 +1,11 @@
-# dev dependencies
+# test
 pytest==8.3.5
 pytest-cov==6.0.0
 pytest-mock==3.14.0
-tox==4.26.0
-flake8-pyproject==1.2.3
+
+# codestyle
 flake8==7.2.0
+flake8-pyproject==1.2.3
 isort==5.13.2
+
+tox==4.26.0

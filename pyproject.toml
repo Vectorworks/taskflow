@@ -9,7 +9,6 @@ urls = {"homepage" = "https://git@github.com/Vectorworks/taskflow.git"}
 description = "A simple workflow library."
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = []
 
 [tool.setuptools.dynamic]
 version = {attr = "taskflow.__version__"}
@@ -48,9 +47,27 @@ skip_missing_interpreters = true
 [tool.tox.env.default]
 recreate = false
 alwayscopy = true
-extras = ["dev"]
+usedevelop = false
 setenv = {PYTHONPATH = "{toxinidir}"}
-commands = ["py.test -v"]
+changedir = "{toxinidir}"
+
+[tool.tox.env.py310-django32]
+extras = ["dev"]
+deps = ["django>=3.2,<4.0"]
+basepython = ["python3.10"]
+commands = [["python", "-m", "pytest"]]
+
+[tool.tox.env.py310-django42]
+extras = ["dev"]
+deps = ["django>=4.2,<4.3"]
+basepython = ["python3.10"]
+commands = [["python", "-m", "pytest"]]
+
+[tool.tox.env.py311-django42]
+extras = ["dev"]
+deps = ["django>=4.2,<4.3"]
+basepython = ["python3.11"]
+commands = [["python", "-m", "pytest"]]
 
 [tool.tox.env.lint]
 extras = ["dev"]
