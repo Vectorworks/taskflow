@@ -9,6 +9,16 @@ on:
       - '**'
 
 jobs:
+  test:
+    name: Check connection
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Echo hello
+        run: echo "Hello, world!"
+
   tox:
     name: Run tox
     runs-on: ubuntu-24.04
