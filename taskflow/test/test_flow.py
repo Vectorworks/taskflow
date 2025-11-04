@@ -9,16 +9,16 @@ from .fixtures import Handlers
 
 class TestFlow(object):
     def test_init(self, mocker):
-        mocker.patch('taskflow.tasks.BaseTask.set_ids')
+        mocker.patch("taskflow.tasks.BaseTask.set_ids")
 
         uid = uuid4()
         root = BaseTask()
 
-        flow = Flow(root.then(BaseTask()), uid=uid, friendly_name='test-flow')
+        flow = Flow(root.then(BaseTask()), uid=uid, friendly_name="test-flow")
 
         assert flow.root_task == root
         assert flow.uid == uid
-        assert flow.friendly_name == 'test-flow'
+        assert flow.friendly_name == "test-flow"
         root.set_ids.assert_called_once_with()
 
     def test_is_halted(self):
@@ -87,7 +87,7 @@ class TestFlow(object):
             return False
 
         flow = Flow(root.then(leaf))
-        mocker.patch('taskflow.flow.Flow._before_task_run', before_task_run)
+        mocker.patch("taskflow.flow.Flow._before_task_run", before_task_run)
 
         result = flow.step()
         assert not flow.is_complete
@@ -139,34 +139,24 @@ class TestFlow(object):
 
     def test_to_list(self):
         task1 = Task(Handlers.repeat, args=(1,))
-        flow = Flow(task1.then(
-            Task(Handlers.repeat)
-        ).then(
-            CompositeTask(
-                Task(Handlers.repeat),
-                Task(Handlers.repeat)
-            )
-        ).then(
-            Task(Handlers.repeat)
-        ))
+        flow = Flow(
+            task1.then(Task(Handlers.repeat))
+            .then(CompositeTask(Task(Handlers.repeat), Task(Handlers.repeat)))
+            .then(Task(Handlers.repeat))
+        )
 
         assert task1.to_list() == flow.to_list()
 
     def test_from_list(self):
         task1 = Task(Handlers.repeat, args=(1,))
-        flow1 = Flow(task1.then(
-            Task(Handlers.repeat)
-        ).then(
-            CompositeTask(
-                Task(Handlers.repeat),
-                Task(Handlers.repeat)
-            )
-        ).then(
-            Task(Handlers.repeat)
-        ))
+        flow1 = Flow(
+            task1.then(Task(Handlers.repeat))
+            .then(CompositeTask(Task(Handlers.repeat), Task(Handlers.repeat)))
+            .then(Task(Handlers.repeat))
+        )
 
         data_list = flow1.to_list()
         shuffle(data_list)
-        flow2 = Flow.from_list(data_list, uid=uuid4(), friendly_name='Copy')
+        flow2 = Flow.from_list(data_list, uid=uuid4(), friendly_name="Copy")
 
         assert flow2.to_list() == flow1.to_list()
