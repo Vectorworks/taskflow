@@ -8,7 +8,7 @@ from .type_helpers import type_from_string
 class Flow(object):
     def __init__(self, task: BaseTask, uid=None, friendly_name=None):
         self.uid = uid or uuid4()
-        self.friendly_name = friendly_name or ''
+        self.friendly_name = friendly_name or ""
         self.root_task = BaseTask.find_root(task)
 
         # when deserializing, tasks will already have ids, that we want to preserve
@@ -92,13 +92,14 @@ class Flow(object):
 
         while remaining_tasks:
             for task_data in remaining_tasks:
-                task_depends_on = ([task_data['prev']] if task_data['prev'] else []) + \
-                                  (task_data.get('sub_tasks') or [])
+                task_depends_on = ([task_data["prev"]] if task_data["prev"] else []) + (
+                    task_data.get("sub_tasks") or []
+                )
 
                 if all(depends_on in created for depends_on in task_depends_on):
-                    task_type = type_from_string(task_data['class'])
-                    task_data['sub_tasks'] = [created[task_id] for task_id in (task_data.get('sub_tasks') or [])]
-                    task_data['prev'] = created[task_data['prev']] if task_data['prev'] else None
+                    task_type = type_from_string(task_data["class"])
+                    task_data["sub_tasks"] = [created[task_id] for task_id in (task_data.get("sub_tasks") or [])]
+                    task_data["prev"] = created[task_data["prev"]] if task_data["prev"] else None
 
                     last_created = task_type.from_data(task_data)
 
