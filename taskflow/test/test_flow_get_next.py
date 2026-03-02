@@ -43,7 +43,7 @@ class TestGetNextSimpleChain:
     """Tests for _get_next with simple chained tasks (no composites)."""
 
     def test_all_pending_returns_first_task(self):
-        task1, task2, task3 = _make_simple_chain()
+        task1, _, _ = _make_simple_chain()
         flow = Flow(task1)
         assert flow._get_next(task1) == task1
 
@@ -55,32 +55,32 @@ class TestGetNextSimpleChain:
         assert flow._get_next(task1) == task1
 
     def test_first_complete_second_pending_returns_second(self):
-        task1, task2, task3 = _make_simple_chain()
+        task1, task2, _ = _make_simple_chain()
         flow = Flow(task1)
         _reset_task(task1, BaseTask.STATUS_COMPLETE, 1)
         assert flow._get_next(task1) == task2
 
     def test_first_running_returns_none(self):
-        task1, task2, task3 = _make_simple_chain()
+        task1, _, _ = _make_simple_chain()
         flow = Flow(task1)
         _reset_task(task1, BaseTask.STATUS_RUNNING)
         assert flow._get_next(task1) is None
 
     def test_first_halted_returns_none(self):
-        task1, task2, task3 = _make_simple_chain()
+        task1, _, _ = _make_simple_chain()
         flow = Flow(task1)
         _reset_task(task1, BaseTask.STATUS_HALTED)
         assert flow._get_next(task1) is None
 
     def test_second_running_returns_none(self):
-        task1, task2, task3 = _make_simple_chain()
+        task1, task2, _ = _make_simple_chain()
         flow = Flow(task1)
         _reset_task(task1, BaseTask.STATUS_COMPLETE, 1)
         _reset_task(task2, BaseTask.STATUS_RUNNING)
         assert flow._get_next(task1) is None
 
     def test_second_halted_returns_none(self):
-        task1, task2, task3 = _make_simple_chain()
+        task1, task2, _ = _make_simple_chain()
         flow = Flow(task1)
         _reset_task(task1, BaseTask.STATUS_COMPLETE, 1)
         _reset_task(task2, BaseTask.STATUS_HALTED)
@@ -114,21 +114,21 @@ class TestGetNextSingleComposite:
     """Tests for _get_next with a single CompositeTask and various child states."""
 
     def test_both_children_pending_returns_first_child(self):
-        flow, task1, task2, task31, task32, task3, task4 = _make_flow_with_composite()
+        flow, task1, task2, task31, _, _, _ = _make_flow_with_composite()
         _reset_task(task1, BaseTask.STATUS_COMPLETE, 1)
         _reset_task(task2, BaseTask.STATUS_COMPLETE, 2)
         result = flow._get_next(task1)
         assert result == task31
 
     def test_first_child_complete_second_pending_returns_second(self):
-        flow, task1, task2, task31, task32, task3, task4 = _make_flow_with_composite()
+        flow, task1, task2, task31, task32, _, _ = _make_flow_with_composite()
         _reset_task(task1, BaseTask.STATUS_COMPLETE, 1)
         _reset_task(task2, BaseTask.STATUS_COMPLETE, 2)
         _reset_task(task31, BaseTask.STATUS_COMPLETE, 31)
         assert flow._get_next(task1) == task32
 
     def test_one_child_running_one_pending_returns_pending(self):
-        flow, task1, task2, task31, task32, task3, task4 = _make_flow_with_composite()
+        flow, task1, task2, task31, task32, _, _ = _make_flow_with_composite()
         _reset_task(task1, BaseTask.STATUS_COMPLETE, 1)
         _reset_task(task2, BaseTask.STATUS_COMPLETE, 2)
         _reset_task(task31, BaseTask.STATUS_RUNNING)
@@ -136,7 +136,7 @@ class TestGetNextSingleComposite:
 
     def test_one_child_running_one_complete_returns_none(self):
         """Regression: avoids infinite loop when no pending task exists."""
-        flow, task1, task2, task31, task32, task3, task4 = _make_flow_with_composite()
+        flow, task1, task2, task31, task32, _, _ = _make_flow_with_composite()
         _reset_task(task1, BaseTask.STATUS_COMPLETE, 1)
         _reset_task(task2, BaseTask.STATUS_COMPLETE, 2)
         _reset_task(task31, BaseTask.STATUS_RUNNING)
@@ -144,7 +144,7 @@ class TestGetNextSingleComposite:
         assert flow._get_next(task1) is None
 
     def test_both_children_running_returns_none(self):
-        flow, task1, task2, task31, task32, task3, task4 = _make_flow_with_composite()
+        flow, task1, task2, task31, task32, _, _ = _make_flow_with_composite()
         _reset_task(task1, BaseTask.STATUS_COMPLETE, 1)
         _reset_task(task2, BaseTask.STATUS_COMPLETE, 2)
         _reset_task(task31, BaseTask.STATUS_RUNNING)
@@ -152,14 +152,14 @@ class TestGetNextSingleComposite:
         assert flow._get_next(task1) is None
 
     def test_one_child_halted_returns_none(self):
-        flow, task1, task2, task31, task32, task3, task4 = _make_flow_with_composite()
+        flow, task1, task2, task31, task32, _, _ = _make_flow_with_composite()
         _reset_task(task1, BaseTask.STATUS_COMPLETE, 1)
         _reset_task(task2, BaseTask.STATUS_COMPLETE, 2)
         _reset_task(task31, BaseTask.STATUS_HALTED)
         assert flow._get_next(task1) is None
 
     def test_both_children_complete_returns_next_in_chain(self):
-        flow, task1, task2, task31, task32, task3, task4 = _make_flow_with_composite()
+        flow, task1, task2, task31, task32, _, task4 = _make_flow_with_composite()
         _reset_task(task1, BaseTask.STATUS_COMPLETE, 1)
         _reset_task(task2, BaseTask.STATUS_COMPLETE, 2)
         _reset_task(task31, BaseTask.STATUS_COMPLETE, 31)
