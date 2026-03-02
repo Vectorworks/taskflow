@@ -1,3 +1,4 @@
+from collections import deque
 from copy import deepcopy
 from uuid import uuid4
 
@@ -63,18 +64,27 @@ class Flow(object):
         if self.is_halted:
             return None
 
-        sub_tasks = task.get_all_tasks()
-        for sub_task in sub_tasks:
-            if sub_task == task:
-                if sub_task.status == BaseTask.STATUS_PENDING:
-                    return task
-            else:
-                next_task = self._get_next(sub_task)
-                if next_task:
-                    return next_task
+        stack = deque()
+        stack.append(task)
 
-        if task.status == BaseTask.STATUS_COMPLETE and task.next:
-            return self._get_next(task.next)
+        while stack:
+            current_task = stack.pop()
+            current_status = current_task.status
+            if current_status != BaseTask.STATUS_PENDING:
+                if current_status == BaseTask.STATUS_COMPLETE and current_task.next:
+                    # if it has a dependent, add that to the stack
+                    stack.append(current_task.next)
+
+                # this task cannot be handled - move on.
+                continue
+
+            if current_task.is_standalone:
+                return current_task
+
+            sub_tasks = current_task.get_all_tasks()
+            # trying to avoid copying
+            for task_index in range(len(sub_tasks) - 1, -1, -1):
+                stack.append(sub_tasks[task_index])
 
         return None
 
