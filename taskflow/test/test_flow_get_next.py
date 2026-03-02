@@ -248,7 +248,7 @@ class TestGetNextChainedComposites:
         _reset_task(c1a, BaseTask.STATUS_RUNNING)
         assert flow._get_next(task1) == c1b
 
-    def test_both_composites_complete_returns_final_task(self):
+    def test_composite_complete_returns_next_task_in_chain(self):
         task1 = Task(Handlers.repeat, args=(1,))
         task2 = task1.then(Task(Handlers.repeat, args=(2,)))
         c1a = Task(Handlers.repeat, args=(101,))
