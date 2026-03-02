@@ -72,10 +72,10 @@ class Flow(object):
             current_status = current_task.status
             if current_status != BaseTask.STATUS_PENDING:
                 if current_status == BaseTask.STATUS_COMPLETE and current_task.next:
-                    # if it has a dependant, add that to the stack
+                    # if it has a dependent, add that to the stack
                     stack.append(current_task.next)
 
-                # this task cannot be handled - move on it.
+                # this task cannot be handled - move on.
                 continue
 
             if current_task.is_standalone:
