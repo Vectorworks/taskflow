@@ -1,5 +1,5 @@
 __title__ = "Taskflow"
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 from .flow import *  # noqa
 from .tasks import *  # noqa
